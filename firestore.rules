@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Satu peran: pengurus yang login boleh kelola semuanya.
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    // Warga tanpa login: hanya bisa GET satu dokumen jika tahu kata kuncinya (id dokumen).
+    // Tidak ada "list", jadi kata kunci tidak bisa ditebak lewat daftar.
+    match /publik/{kunci} {
+      allow get: if true;
+    }
+    // Daftar pengeluaran kas ditampilkan ke warga di halaman /cek.
+    match /pengeluaran/{id} {
+      allow read: if true;
+    }
+    // Nominal iuran per bulan tidak sensitif.
+    match /tarif/{bulan} {
+      allow read: if true;
+    }
+  }
+}
